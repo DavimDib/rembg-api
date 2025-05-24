@@ -1,4 +1,5 @@
-from fastapi import FastAPI, File, UploadFile, Response
+from fastapi import FastAPI, File, UploadFile, Response, Request
+from fastapi.responses import JSONResponse
 from rembg import remove
 import uvicorn
 import os
@@ -12,8 +13,7 @@ async def remove_bg(file: UploadFile = File(...)):
         output_data = remove(image_data)
         return Response(content=output_data, media_type="image/png")
     except Exception as e:
-        print("❌ Background removal failed:", str(e))
-        return Response(content=f"Error: {str(e)}", media_type="text/plain", status_code=500)
+        return JSONResponse(content={"error": str(e)}, status_code=500)
 
 @app.get("/")
 @app.head("/")
@@ -21,5 +21,5 @@ def root():
     return {"message": "rembg is running"}
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))
+    port = int(os.environ.get("PORT", 10000))
     uvicorn.run("main:app", host="0.0.0.0", port=port)
