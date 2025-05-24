@@ -25,6 +25,22 @@ async def remove_bg(file: UploadFile = File(...)):
 def root():
     return {"message": "rembg is running"}
 
+import threading
+import requests
+import time
+
+def warmup():
+    time.sleep(3)  # wait a few seconds for server to boot
+    try:
+        print("🔥 Warming up with self-ping...")
+        requests.get("http://0.0.0.0:10000/")
+    except Exception as e:
+        print("Warmup failed:", e)
+
+threading.Thread(target=warmup).start()
+
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run("main:app", host="0.0.0.0", port=port)
