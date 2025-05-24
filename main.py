@@ -1,26 +1,18 @@
 from fastapi import FastAPI, File, UploadFile, Response
-from rembg import remove
+from rembg import new_session, remove
 import uvicorn
 import os
 
 app = FastAPI()
 
-# ✅ Preload the model during startup so the first request isn't delayed
-@app.on_event("startup")
-async def preload_model():
-    print("🔥 Preloading model...")
-    dummy = b"\x89PNG\r\n\x1a\n" + b"\x00" * 100  # fake PNG file
-    try:
-        remove(dummy)
-    except:
-        pass
-    print("✅ Model preloaded.")
+# ✅ Use the smaller u2netp model
+session = new_session("u2netp")
 
 @app.post("/remove")
 async def remove_bg(file: UploadFile = File(...)):
     try:
         image_data = await file.read()
-        output_data = remove(image_data)
+        output_data = remove(image_data, session=session)
         return Response(content=output_data, media_type="image/png")
     except Exception as e:
         print("❌ Background removal failed:", str(e))
