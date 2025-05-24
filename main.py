@@ -10,15 +10,20 @@ session = new_session("u2netp")
 
 @app.post("/remove")
 async def remove_bg(file: UploadFile = File(...)):
-    print("📥 Received request")
+    print("📥 Received /remove request")
     try:
         image_data = await file.read()
+        print(f"📦 Received file: {file.filename}, {len(image_data)} bytes")
+
         output_data = remove(image_data, session=session)
-        print("✅ Successfully processed image")
+        print("✅ Background removal successful")
+
         return Response(content=output_data, media_type="image/png")
+
     except Exception as e:
         print("❌ Background removal failed:", str(e))
         return Response(content=f"Error: {str(e)}", media_type="text/plain", status_code=500)
+
 
 @app.get("/")
 @app.head("/")
